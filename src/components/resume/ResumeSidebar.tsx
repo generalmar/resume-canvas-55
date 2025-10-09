@@ -12,8 +12,9 @@ import { ExperienceSection } from './ExperienceSection';
 import { EducationSection } from './EducationSection';
 import { SkillsSection } from './SkillsSection';
 import { ProjectsSection } from './ProjectsSection';
+import { AddSectionDialog } from './AddSectionDialog';
 import { Button } from '@/components/ui/button';
-import { GripVertical, User, FileText, Briefcase, GraduationCap, Code, FolderKanban } from 'lucide-react';
+import { GripVertical, User, FileText, Briefcase, GraduationCap, Code, FolderKanban, Plus } from 'lucide-react';
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -63,6 +64,7 @@ const SortableSection = ({ section, children }: { section: Section; children: Re
 
 export const ResumeSidebar = ({ data, onUpdate }: ResumeSidebarProps) => {
   const [activeSection, setActiveSection] = useState<string>('personal');
+  const [showAddDialog, setShowAddDialog] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -85,6 +87,26 @@ export const ResumeSidebar = ({ data, onUpdate }: ResumeSidebarProps) => {
 
       onUpdate({ ...data, sections: newSections });
     }
+  };
+
+  const handleAddSection = (type: SectionType, title: string) => {
+    const iconMap: Record<SectionType, string> = {
+      personal: 'User',
+      summary: 'FileText',
+      experience: 'Briefcase',
+      education: 'GraduationCap',
+      skills: 'Code',
+      projects: 'FolderKanban',
+    };
+
+    const newSection: Section = {
+      id: `${type}-${Date.now()}`,
+      type,
+      title,
+      icon: iconMap[type],
+    };
+
+    onUpdate({ ...data, sections: [...data.sections, newSection] });
   };
 
   const renderSectionContent = (sectionType: SectionType) => {
@@ -160,6 +182,19 @@ export const ResumeSidebar = ({ data, onUpdate }: ResumeSidebarProps) => {
           </SortableContext>
         </DndContext>
       </div>
+
+      <div className="p-4 border-t">
+        <Button onClick={() => setShowAddDialog(true)} className="w-full gap-2">
+          <Plus className="h-4 w-4" />
+          Add Section
+        </Button>
+      </div>
+
+      <AddSectionDialog
+        open={showAddDialog}
+        onOpenChange={setShowAddDialog}
+        onAdd={handleAddSection}
+      />
     </div>
   );
 };
