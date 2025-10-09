@@ -14,7 +14,8 @@ import { SkillsSection } from './SkillsSection';
 import { ProjectsSection } from './ProjectsSection';
 import { AddSectionDialog } from './AddSectionDialog';
 import { Button } from '@/components/ui/button';
-import { GripVertical, User, FileText, Briefcase, GraduationCap, Code, FolderKanban, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { GripVertical, User, FileText, Briefcase, GraduationCap, Code, FolderKanban, Plus, Pencil, Check } from 'lucide-react';
 import { DndContext, closestCenter, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -22,6 +23,8 @@ import { CSS } from '@dnd-kit/utilities';
 interface ResumeSidebarProps {
   data: ResumeData;
   onUpdate: (data: ResumeData) => void;
+  activeSection: string;
+  onActiveSectionChange: (sectionId: string) => void;
 }
 
 const iconMap = {
@@ -33,7 +36,17 @@ const iconMap = {
   FolderKanban,
 };
 
-const SortableSection = ({ section, children }: { section: Section; children: React.ReactNode }) => {
+const SortableSection = ({ 
+  section, 
+  children, 
+  onTitleEdit 
+}: { 
+  section: Section; 
+  children: React.ReactNode;
+  onTitleEdit: (sectionId: string, newTitle: string) => void;
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(section.title);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: section.id,
   });
@@ -46,15 +59,61 @@ const SortableSection = ({ section, children }: { section: Section; children: Re
 
   const Icon = iconMap[section.icon as keyof typeof iconMap] || User;
 
+  const handleSaveTitle = () => {
+    if (editTitle.trim()) {
+      onTitleEdit(section.id, editTitle.trim());
+      setIsEditing(false);
+    }
+  };
+
   return (
     <AccordionItem value={section.id} ref={setNodeRef} style={style} className="border-b">
-      <AccordionTrigger className="hover:no-underline hover:bg-accent px-4">
+      <AccordionTrigger className="hover:no-underline hover:bg-accent px-4 group">
         <div className="flex items-center gap-2 w-full">
           <div {...attributes} {...listeners} className="cursor-grab active:cursor-grabbing">
             <GripVertical className="h-4 w-4 text-muted-foreground" />
           </div>
           <Icon className="h-4 w-4 text-primary" />
-          <span className="font-medium">{section.title}</span>
+          {isEditing ? (
+            <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
+              <Input
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleSaveTitle();
+                  if (e.key === 'Escape') {
+                    setEditTitle(section.title);
+                    setIsEditing(false);
+                  }
+                }}
+                className="h-7 text-sm"
+                autoFocus
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 w-7 p-0"
+                onClick={handleSaveTitle}
+              >
+                <Check className="h-3 w-3" />
+              </Button>
+            </div>
+          ) : (
+            <>
+              <span className="font-medium flex-1">{section.title}</span>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsEditing(true);
+                }}
+              >
+                <Pencil className="h-3 w-3" />
+              </Button>
+            </>
+          )}
         </div>
       </AccordionTrigger>
       <AccordionContent>{children}</AccordionContent>
@@ -62,8 +121,7 @@ const SortableSection = ({ section, children }: { section: Section; children: Re
   );
 };
 
-export const ResumeSidebar = ({ data, onUpdate }: ResumeSidebarProps) => {
-  const [activeSection, setActiveSection] = useState<string>('personal');
+export const ResumeSidebar = ({ data, onUpdate, activeSection, onActiveSectionChange }: ResumeSidebarProps) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   const sensors = useSensors(
@@ -107,6 +165,13 @@ export const ResumeSidebar = ({ data, onUpdate }: ResumeSidebarProps) => {
     };
 
     onUpdate({ ...data, sections: [...data.sections, newSection] });
+  };
+
+  const handleTitleEdit = (sectionId: string, newTitle: string) => {
+    const updatedSections = data.sections.map((section) =>
+      section.id === sectionId ? { ...section, title: newTitle } : section
+    );
+    onUpdate({ ...data, sections: updatedSections });
   };
 
   const renderSectionContent = (sectionType: SectionType) => {
@@ -172,9 +237,9 @@ export const ResumeSidebar = ({ data, onUpdate }: ResumeSidebarProps) => {
       <div className="flex-1 overflow-y-auto">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={data.sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-            <Accordion type="single" value={activeSection} onValueChange={setActiveSection} collapsible>
+            <Accordion type="single" value={activeSection} onValueChange={onActiveSectionChange} collapsible>
               {data.sections.map((section) => (
-                <SortableSection key={section.id} section={section}>
+                <SortableSection key={section.id} section={section} onTitleEdit={handleTitleEdit}>
                   {renderSectionContent(section.type)}
                 </SortableSection>
               ))}

@@ -3,9 +3,10 @@ import { Mail, Phone, MapPin } from 'lucide-react';
 
 interface ResumePreviewProps {
   data: ResumeData;
+  onSectionHover?: (sectionId: string) => void;
 }
 
-export const ResumePreview = ({ data }: ResumePreviewProps) => {
+export const ResumePreview = ({ data, onSectionHover }: ResumePreviewProps) => {
   const { personalInfo, professionalSummary, experiences, education, skills, projects, sections } = data;
 
   const formatDate = (dateString: string) => {
@@ -146,7 +147,11 @@ export const ResumePreview = ({ data }: ResumePreviewProps) => {
       {sections
         .filter((section) => section.type !== 'personal')
         .map((section) => (
-          <div key={section.id}>
+          <div 
+            key={section.id}
+            onMouseEnter={() => onSectionHover?.(section.id)}
+            className="cursor-pointer transition-all hover:bg-muted/30 rounded-sm p-1 -m-1"
+          >
             {renderSection(section.type)}
           </div>
         ))}

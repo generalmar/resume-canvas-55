@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 const Index = () => {
   const [resumeData, setResumeData] = useState<ResumeData>(mockResumeData);
+  const [activeSection, setActiveSection] = useState<string>('personal');
 
   const handleDownloadPDF = async () => {
     try {
@@ -57,7 +58,12 @@ const Index = () => {
     <div className="flex h-screen w-full bg-background">
       {/* Sidebar */}
       <div className="w-[400px] flex-shrink-0">
-        <ResumeSidebar data={resumeData} onUpdate={setResumeData} />
+        <ResumeSidebar 
+          data={resumeData} 
+          onUpdate={setResumeData}
+          activeSection={activeSection}
+          onActiveSectionChange={setActiveSection}
+        />
       </div>
 
       {/* Main Content */}
@@ -88,7 +94,7 @@ const Index = () => {
 
         {/* Preview Area */}
         <div className="flex-1 overflow-auto bg-muted p-8">
-          <ResumePreview data={resumeData} />
+          <ResumePreview data={resumeData} onSectionHover={setActiveSection} />
         </div>
       </div>
     </div>
