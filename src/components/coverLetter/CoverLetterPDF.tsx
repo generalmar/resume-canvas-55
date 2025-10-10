@@ -1,7 +1,8 @@
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { CoverLetterData } from '@/types/coverLetter';
+import { CoverLetterTemplate } from '@/types/template';
 
-const styles = StyleSheet.create({
+const professionalStyles = StyleSheet.create({
   page: {
     padding: 48,
     fontFamily: 'Helvetica',
@@ -50,11 +51,124 @@ const styles = StyleSheet.create({
   },
 });
 
+const modernStyles = StyleSheet.create({
+  page: {
+    padding: 48,
+    fontFamily: 'Helvetica',
+    fontSize: 11,
+    lineHeight: 1.6,
+  },
+  header: {
+    backgroundColor: '#3b82f6',
+    padding: 20,
+    margin: -48,
+    marginBottom: 30,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 8,
+    color: '#ffffff',
+  },
+  contactInfo: {
+    fontSize: 10,
+    color: '#e0e7ff',
+    marginBottom: 2,
+  },
+  date: {
+    marginBottom: 20,
+    fontSize: 10,
+  },
+  recipient: {
+    marginBottom: 20,
+    fontSize: 10,
+    paddingLeft: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#93c5fd',
+  },
+  recipientLine: {
+    marginBottom: 2,
+  },
+  opening: {
+    marginBottom: 16,
+    color: '#1e40af',
+    fontWeight: 'bold',
+  },
+  body: {
+    marginBottom: 16,
+  },
+  paragraph: {
+    marginBottom: 12,
+    textAlign: 'justify',
+    lineHeight: 1.7,
+  },
+  closing: {
+    marginTop: 24,
+    color: '#1e40af',
+  },
+  closingLine: {
+    marginBottom: 4,
+  },
+});
+
+const minimalStyles = StyleSheet.create({
+  page: {
+    padding: 60,
+    fontFamily: 'Helvetica',
+    fontSize: 11,
+    lineHeight: 1.7,
+  },
+  header: {
+    marginBottom: 30,
+  },
+  name: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    letterSpacing: 0.5,
+  },
+  contactInfo: {
+    fontSize: 9,
+    color: '#666',
+    marginBottom: 2,
+  },
+  date: {
+    marginBottom: 25,
+    fontSize: 10,
+    color: '#999',
+  },
+  recipient: {
+    marginBottom: 25,
+    fontSize: 10,
+  },
+  recipientLine: {
+    marginBottom: 3,
+  },
+  opening: {
+    marginBottom: 18,
+  },
+  body: {
+    marginBottom: 18,
+  },
+  paragraph: {
+    marginBottom: 14,
+    textAlign: 'justify',
+  },
+  closing: {
+    marginTop: 30,
+  },
+  closingLine: {
+    marginBottom: 5,
+  },
+});
+
 interface CoverLetterPDFProps {
   data: CoverLetterData;
+  template?: CoverLetterTemplate;
 }
 
-export const CoverLetterPDF = ({ data }: CoverLetterPDFProps) => {
+export const CoverLetterPDF = ({ data, template = 'professional' }: CoverLetterPDFProps) => {
+  const styles = template === 'modern' ? modernStyles : template === 'minimal' ? minimalStyles : professionalStyles;
   return (
     <Document>
       <Page size="A4" style={styles.page}>

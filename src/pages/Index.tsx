@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ResumeData } from '@/types/resume';
 import { CoverLetterData } from '@/types/coverLetter';
+import { ResumeTemplate, CoverLetterTemplate } from '@/types/template';
 import { mockResumeData } from '@/data/mockData';
 import { mockCoverLetterData } from '@/data/mockCoverLetterData';
 import { ResumeSidebar } from '@/components/resume/ResumeSidebar';
@@ -9,6 +10,7 @@ import { ResumePDF } from '@/components/resume/ResumePDF';
 import { CoverLetterSidebar } from '@/components/coverLetter/CoverLetterSidebar';
 import { CoverLetterPreview } from '@/components/coverLetter/CoverLetterPreview';
 import { CoverLetterPDF } from '@/components/coverLetter/CoverLetterPDF';
+import { TemplateSelector } from '@/components/TemplateSelector';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Share2, Download } from 'lucide-react';
@@ -20,11 +22,13 @@ const Index = () => {
   const [resumeData, setResumeData] = useState<ResumeData>(mockResumeData);
   const [coverLetterData, setCoverLetterData] = useState<CoverLetterData>(mockCoverLetterData);
   const [activeSection, setActiveSection] = useState<string>('personal');
+  const [resumeTemplate, setResumeTemplate] = useState<ResumeTemplate>('professional');
+  const [coverLetterTemplate, setCoverLetterTemplate] = useState<CoverLetterTemplate>('professional');
 
   const handleDownloadPDF = async () => {
     try {
       if (activeTab === 'resume') {
-        const blob = await pdf(<ResumePDF data={resumeData} />).toBlob();
+        const blob = await pdf(<ResumePDF data={resumeData} template={resumeTemplate} />).toBlob();
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -33,7 +37,7 @@ const Index = () => {
         URL.revokeObjectURL(url);
         toast.success('Resume downloaded successfully!');
       } else {
-        const blob = await pdf(<CoverLetterPDF data={coverLetterData} />).toBlob();
+        const blob = await pdf(<CoverLetterPDF data={coverLetterData} template={coverLetterTemplate} />).toBlob();
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -51,7 +55,7 @@ const Index = () => {
   const handleShare = async () => {
     try {
       if (activeTab === 'resume') {
-        const blob = await pdf(<ResumePDF data={resumeData} />).toBlob();
+        const blob = await pdf(<ResumePDF data={resumeData} template={resumeTemplate} />).toBlob();
         const file = new File([blob], `${resumeData.personalInfo.fullName}_Resume.pdf`, {
           type: 'application/pdf',
         });
@@ -68,7 +72,7 @@ const Index = () => {
           toast.info('Sharing not supported. Resume downloaded instead.');
         }
       } else {
-        const blob = await pdf(<CoverLetterPDF data={coverLetterData} />).toBlob();
+        const blob = await pdf(<CoverLetterPDF data={coverLetterData} template={coverLetterTemplate} />).toBlob();
         const file = new File([blob], `${coverLetterData.personalInfo.fullName}_CoverLetter.pdf`, {
           type: 'application/pdf',
         });
@@ -94,20 +98,33 @@ const Index = () => {
   return (
     <div className="flex h-screen w-full bg-background">
       {/* Sidebar */}
-      <div className="w-[400px] flex-shrink-0">
-        {activeTab === 'resume' ? (
-          <ResumeSidebar 
-            data={resumeData} 
-            onUpdate={setResumeData}
-            activeSection={activeSection}
-            onActiveSectionChange={setActiveSection}
-          />
-        ) : (
-          <CoverLetterSidebar 
-            data={coverLetterData} 
-            onUpdate={setCoverLetterData}
-          />
-        )}
+      <div className="w-[400px] flex-shrink-0 flex flex-col">
+        <TemplateSelector
+          type={activeTab}
+          selectedTemplate={activeTab === 'resume' ? resumeTemplate : coverLetterTemplate}
+          onTemplateChange={(template) => {
+            if (activeTab === 'resume') {
+              setResumeTemplate(template as ResumeTemplate);
+            } else {
+              setCoverLetterTemplate(template as CoverLetterTemplate);
+            }
+          }}
+        />
+        <div className="flex-1 overflow-auto">
+          {activeTab === 'resume' ? (
+            <ResumeSidebar 
+              data={resumeData} 
+              onUpdate={setResumeData}
+              activeSection={activeSection}
+              onActiveSectionChange={setActiveSection}
+            />
+          ) : (
+            <CoverLetterSidebar 
+              data={coverLetterData} 
+              onUpdate={setCoverLetterData}
+            />
+          )}
+        </div>
       </div>
 
       {/* Main Content */}
@@ -125,8 +142,10 @@ const Index = () => {
               </Tabs>
             </div>
             <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Theme:</span>
-              <span className="font-medium">Professional</span>
+              <span className="text-muted-foreground">Template:</span>
+              <span className="font-medium capitalize">
+                {activeTab === 'resume' ? resumeTemplate : coverLetterTemplate}
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-2">

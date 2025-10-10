@@ -1,7 +1,8 @@
-import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { ResumeData } from '@/types/resume';
+import { ResumeTemplate } from '@/types/template';
 
-const styles = StyleSheet.create({
+const professionalStyles = StyleSheet.create({
   page: {
     padding: 40,
     backgroundColor: '#ffffff',
@@ -101,11 +102,229 @@ const styles = StyleSheet.create({
   },
 });
 
+const modernStyles = StyleSheet.create({
+  page: {
+    padding: 40,
+    backgroundColor: '#ffffff',
+    fontFamily: 'Helvetica',
+  },
+  header: {
+    marginBottom: 20,
+    backgroundColor: '#3b82f6',
+    padding: 20,
+    margin: -40,
+  },
+  name: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginBottom: 4,
+    color: '#ffffff',
+  },
+  title: {
+    fontSize: 14,
+    color: '#e0e7ff',
+    marginBottom: 8,
+  },
+  contactInfo: {
+    fontSize: 10,
+    color: '#e0e7ff',
+    marginBottom: 2,
+  },
+  section: {
+    marginBottom: 18,
+    marginTop: 20,
+  },
+  sectionTitle: {
+    fontSize: 15,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#3b82f6',
+    borderBottomWidth: 2,
+    borderBottomColor: '#3b82f6',
+    paddingBottom: 4,
+  },
+  summaryText: {
+    fontSize: 10,
+    lineHeight: 1.6,
+    color: '#333333',
+  },
+  experienceItem: {
+    marginBottom: 14,
+    paddingLeft: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: '#93c5fd',
+  },
+  experienceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+  jobTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: '#1e40af',
+  },
+  company: {
+    fontSize: 10,
+    color: '#666666',
+    marginBottom: 2,
+  },
+  dateLocation: {
+    fontSize: 9,
+    color: '#666666',
+  },
+  description: {
+    fontSize: 10,
+    lineHeight: 1.5,
+    color: '#333333',
+  },
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  skill: {
+    fontSize: 10,
+    backgroundColor: '#dbeafe',
+    color: '#1e40af',
+    padding: '5 10',
+    borderRadius: 6,
+    marginBottom: 4,
+  },
+  projectItem: {
+    marginBottom: 12,
+    backgroundColor: '#f8fafc',
+    padding: 10,
+    borderRadius: 4,
+  },
+  projectName: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: '#1e40af',
+    marginBottom: 3,
+  },
+  projectDescription: {
+    fontSize: 10,
+    lineHeight: 1.4,
+    color: '#333333',
+    marginBottom: 3,
+  },
+  projectTech: {
+    fontSize: 9,
+    color: '#3b82f6',
+    fontStyle: 'italic',
+  },
+});
+
+const minimalStyles = StyleSheet.create({
+  page: {
+    padding: 50,
+    backgroundColor: '#ffffff',
+    fontFamily: 'Helvetica',
+  },
+  header: {
+    marginBottom: 30,
+  },
+  name: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    marginBottom: 6,
+    letterSpacing: 0.5,
+  },
+  title: {
+    fontSize: 12,
+    color: '#999999',
+    marginBottom: 10,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  contactInfo: {
+    fontSize: 9,
+    color: '#666666',
+    marginBottom: 2,
+  },
+  section: {
+    marginBottom: 20,
+  },
+  sectionTitle: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#000000',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+  },
+  summaryText: {
+    fontSize: 10,
+    lineHeight: 1.7,
+    color: '#333333',
+  },
+  experienceItem: {
+    marginBottom: 14,
+  },
+  experienceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 6,
+  },
+  jobTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+  },
+  company: {
+    fontSize: 10,
+    color: '#666666',
+    marginBottom: 3,
+  },
+  dateLocation: {
+    fontSize: 9,
+    color: '#999999',
+  },
+  description: {
+    fontSize: 10,
+    lineHeight: 1.5,
+    color: '#444444',
+  },
+  skillsContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  skill: {
+    fontSize: 10,
+    color: '#333333',
+    padding: '3 0',
+    marginBottom: 4,
+    marginRight: 8,
+  },
+  projectItem: {
+    marginBottom: 12,
+  },
+  projectName: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    marginBottom: 3,
+  },
+  projectDescription: {
+    fontSize: 10,
+    lineHeight: 1.5,
+    color: '#444444',
+    marginBottom: 3,
+  },
+  projectTech: {
+    fontSize: 9,
+    color: '#999999',
+  },
+});
+
 interface ResumePDFProps {
   data: ResumeData;
+  template?: ResumeTemplate;
 }
 
-export const ResumePDF = ({ data }: ResumePDFProps) => {
+export const ResumePDF = ({ data, template = 'professional' }: ResumePDFProps) => {
+  const styles = template === 'modern' ? modernStyles : template === 'minimal' ? minimalStyles : professionalStyles;
+  
   const renderSection = (sectionType: string) => {
     switch (sectionType) {
       case 'summary':
