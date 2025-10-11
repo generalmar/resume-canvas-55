@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ResumeData } from '@/types/resume';
 import { CoverLetterData } from '@/types/coverLetter';
 import { ResumeTemplate, CoverLetterTemplate, resumeTemplates, coverLetterTemplates } from '@/types/template';
@@ -14,11 +15,12 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Share2, Download, User, FileText, CreditCard, LogOut, Menu } from 'lucide-react';
+import { Share2, Download, User, FileText, CreditCard, LogOut, Menu, Coins } from 'lucide-react';
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'sonner';
 
 const Index = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'resume' | 'cover-letter'>('resume');
   const [resumeData, setResumeData] = useState<ResumeData>(mockResumeData);
   const [coverLetterData, setCoverLetterData] = useState<CoverLetterData>(mockCoverLetterData);
@@ -199,24 +201,24 @@ const Index = () => {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
                   <User className="h-4 w-4 mr-2" />
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/resumes')}>
                   <FileText className="h-4 w-4 mr-2" />
                   My Resumes
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/cover-letters')}>
                   <FileText className="h-4 w-4 mr-2" />
                   My Cover Letters
                 </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
                   <CreditCard className="h-4 w-4 mr-2" />
                   Subscription
                 </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <CreditCard className="h-4 w-4 mr-2" />
+                <DropdownMenuItem onClick={() => navigate('/profile')}>
+                  <Coins className="h-4 w-4 mr-2" />
                   Tokens
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
