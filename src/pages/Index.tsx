@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ResumeData } from '@/types/resume';
 import { CoverLetterData } from '@/types/coverLetter';
-import { ResumeTemplate, CoverLetterTemplate } from '@/types/template';
+import { ResumeTemplate, CoverLetterTemplate, resumeTemplates, coverLetterTemplates } from '@/types/template';
 import { mockResumeData } from '@/data/mockData';
 import { mockCoverLetterData } from '@/data/mockCoverLetterData';
 import { ResumeSidebar } from '@/components/resume/ResumeSidebar';
@@ -10,10 +10,11 @@ import { ResumePDF } from '@/components/resume/ResumePDF';
 import { CoverLetterSidebar } from '@/components/coverLetter/CoverLetterSidebar';
 import { CoverLetterPreview } from '@/components/coverLetter/CoverLetterPreview';
 import { CoverLetterPDF } from '@/components/coverLetter/CoverLetterPDF';
-import { TemplateSelector } from '@/components/TemplateSelector';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Share2, Download } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Share2, Download, User, FileText, CreditCard, LogOut, Menu } from 'lucide-react';
 import { pdf } from '@react-pdf/renderer';
 import { toast } from 'sonner';
 
@@ -98,18 +99,7 @@ const Index = () => {
   return (
     <div className="flex h-screen w-full bg-background">
       {/* Sidebar */}
-      <div className="w-[400px] flex-shrink-0 flex flex-col">
-        <TemplateSelector
-          type={activeTab}
-          selectedTemplate={activeTab === 'resume' ? resumeTemplate : coverLetterTemplate}
-          onTemplateChange={(template) => {
-            if (activeTab === 'resume') {
-              setResumeTemplate(template as ResumeTemplate);
-            } else {
-              setCoverLetterTemplate(template as CoverLetterTemplate);
-            }
-          }}
-        />
+      <div className="hidden lg:flex lg:w-[400px] flex-shrink-0 flex-col border-r">
         <div className="flex-1 overflow-auto">
           {activeTab === 'resume' ? (
             <ResumeSidebar 
@@ -128,40 +118,119 @@ const Index = () => {
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-16 border-b bg-card flex items-center justify-between px-6">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 rounded bg-primary" />
-              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'resume' | 'cover-letter')}>
+        <header className="h-16 border-b bg-card flex items-center justify-between px-3 md:px-6 gap-2">
+          <div className="flex items-center gap-2 md:gap-4 min-w-0">
+            {/* Mobile Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild className="lg:hidden">
+                <Button variant="ghost" size="icon">
+                  <Menu className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                <DropdownMenuLabel>Navigation</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => setActiveTab('resume')}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Resume
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setActiveTab('cover-letter')}>
+                  <FileText className="h-4 w-4 mr-2" />
+                  Cover Letter
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <div className="flex items-center gap-2 min-w-0">
+              <div className="w-4 h-4 rounded bg-primary hidden md:block" />
+              <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'resume' | 'cover-letter')} className="hidden md:block">
                 <TabsList>
                   <TabsTrigger value="resume">Resume</TabsTrigger>
                   <TabsTrigger value="cover-letter">Cover Letter</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-muted-foreground">Template:</span>
-              <span className="font-medium capitalize">
-                {activeTab === 'resume' ? resumeTemplate : coverLetterTemplate}
-              </span>
+            
+            <div className="flex items-center gap-2 text-sm min-w-0">
+              <span className="text-muted-foreground hidden md:inline">Template:</span>
+              <Select
+                value={activeTab === 'resume' ? resumeTemplate : coverLetterTemplate}
+                onValueChange={(value) => {
+                  if (activeTab === 'resume') {
+                    setResumeTemplate(value as ResumeTemplate);
+                  } else {
+                    setCoverLetterTemplate(value as CoverLetterTemplate);
+                  }
+                }}
+              >
+                <SelectTrigger className="w-[130px] md:w-[160px] h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {(activeTab === 'resume' ? resumeTemplates : coverLetterTemplates).map((template) => (
+                    <SelectItem key={template.id} value={template.id}>
+                      {template.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
+
           <div className="flex items-center gap-2">
-            <Button variant="outline" className="gap-2" onClick={handleShare}>
+            <Button variant="outline" size="sm" className="gap-2 hidden md:flex" onClick={handleShare}>
               <Share2 className="h-4 w-4" />
-              Share
+              <span className="hidden lg:inline">Share</span>
             </Button>
-            <Button className="gap-2" onClick={handleDownloadPDF}>
+            <Button size="sm" className="gap-2" onClick={handleDownloadPDF}>
               <Download className="h-4 w-4" />
-              Download PDF
+              <span className="hidden sm:inline">Download</span>
             </Button>
+
+            {/* User Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <User className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <User className="h-4 w-4 mr-2" />
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <FileText className="h-4 w-4 mr-2" />
+                  My Resumes
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <FileText className="h-4 w-4 mr-2" />
+                  My Cover Letters
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Subscription
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Tokens
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-destructive">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </header>
 
         {/* Preview Area */}
-        <div className="flex-1 overflow-auto bg-muted p-8">
+        <div className="flex-1 overflow-auto bg-muted p-4 md:p-8">
           {activeTab === 'resume' ? (
             <ResumePreview data={resumeData} onSectionHover={setActiveSection} />
           ) : (
