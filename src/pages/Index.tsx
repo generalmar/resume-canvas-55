@@ -42,7 +42,15 @@ const Index = () => {
       title: 'Frontend Developer Resume',
       dateCreated: '2024-03-10',
       template: 'modern' as ResumeTemplate,
-      data: mockResumeData,
+      data: {
+        ...mockResumeData,
+        personalInfo: {
+          ...mockResumeData.personalInfo,
+          fullName: 'Jane Smith',
+          title: 'Frontend Developer',
+        },
+        summary: 'Passionate frontend developer with 4 years of experience building responsive web applications.',
+      },
     },
   ]);
 
@@ -59,7 +67,19 @@ const Index = () => {
       title: 'Frontend Developer Role',
       dateCreated: '2024-03-10',
       template: 'modern' as CoverLetterTemplate,
-      data: mockCoverLetterData,
+      data: {
+        ...mockCoverLetterData,
+        personalInfo: {
+          ...mockCoverLetterData.personalInfo,
+          fullName: 'Jane Smith',
+        },
+        recipientInfo: {
+          ...mockCoverLetterData.recipientInfo,
+          company: 'Tech Innovations Inc',
+          position: 'Frontend Developer',
+        },
+        body: 'I am writing to express my strong interest in the Frontend Developer position at Tech Innovations Inc. With 4 years of experience in building modern web applications...',
+      },
     },
   ]);
 
