@@ -11,6 +11,7 @@ import { ResumePDF } from '@/components/resume/ResumePDF';
 import { CoverLetterSidebar } from '@/components/coverLetter/CoverLetterSidebar';
 import { CoverLetterPreview } from '@/components/coverLetter/CoverLetterPreview';
 import { CoverLetterPDF } from '@/components/coverLetter/CoverLetterPDF';
+import { DocumentList } from '@/components/DocumentList';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -27,6 +28,40 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState<string>('personal');
   const [resumeTemplate, setResumeTemplate] = useState<ResumeTemplate>('professional');
   const [coverLetterTemplate, setCoverLetterTemplate] = useState<CoverLetterTemplate>('professional');
+
+  const [resumes, setResumes] = useState([
+    {
+      id: '1',
+      title: 'Software Engineer Resume',
+      dateCreated: '2024-03-15',
+      template: 'professional' as ResumeTemplate,
+      data: mockResumeData,
+    },
+    {
+      id: '2',
+      title: 'Frontend Developer Resume',
+      dateCreated: '2024-03-10',
+      template: 'modern' as ResumeTemplate,
+      data: mockResumeData,
+    },
+  ]);
+
+  const [coverLetters, setCoverLetters] = useState([
+    {
+      id: '1',
+      title: 'Software Engineer Position',
+      dateCreated: '2024-03-15',
+      template: 'professional' as CoverLetterTemplate,
+      data: mockCoverLetterData,
+    },
+    {
+      id: '2',
+      title: 'Frontend Developer Role',
+      dateCreated: '2024-03-10',
+      template: 'modern' as CoverLetterTemplate,
+      data: mockCoverLetterData,
+    },
+  ]);
 
   const handleDownloadPDF = async () => {
     try {
@@ -53,6 +88,28 @@ const Index = () => {
       toast.error(`Failed to download ${activeTab === 'resume' ? 'resume' : 'cover letter'}`);
       console.error(error);
     }
+  };
+
+  const handleEditResume = (doc: any) => {
+    setResumeData(doc.data);
+    setResumeTemplate(doc.template);
+    toast.success('Resume loaded for editing');
+  };
+
+  const handleDeleteResume = (id: string) => {
+    setResumes(resumes.filter(r => r.id !== id));
+    toast.success('Resume deleted successfully');
+  };
+
+  const handleEditCoverLetter = (doc: any) => {
+    setCoverLetterData(doc.data);
+    setCoverLetterTemplate(doc.template);
+    toast.success('Cover letter loaded for editing');
+  };
+
+  const handleDeleteCoverLetter = (id: string) => {
+    setCoverLetters(coverLetters.filter(c => c.id !== id));
+    toast.success('Cover letter deleted successfully');
   };
 
   const handleShare = async () => {
@@ -100,8 +157,8 @@ const Index = () => {
 
   return (
     <div className="flex h-screen w-full bg-background">
-      {/* Sidebar */}
-      <div className="hidden lg:flex lg:w-[400px] flex-shrink-0 flex-col border-r">
+      {/* Left Sidebar */}
+      <div className="hidden lg:flex lg:w-[350px] flex-shrink-0 flex-col border-r">
         <div className="flex-1 overflow-auto">
           {activeTab === 'resume' ? (
             <ResumeSidebar 
@@ -239,6 +296,25 @@ const Index = () => {
             <CoverLetterPreview data={coverLetterData} />
           )}
         </div>
+      </div>
+
+      {/* Right Sidebar - Document List */}
+      <div className="hidden xl:flex xl:w-[320px] flex-shrink-0">
+        {activeTab === 'resume' ? (
+          <DocumentList
+            type="resume"
+            documents={resumes}
+            onEdit={handleEditResume}
+            onDelete={handleDeleteResume}
+          />
+        ) : (
+          <DocumentList
+            type="cover-letter"
+            documents={coverLetters}
+            onEdit={handleEditCoverLetter}
+            onDelete={handleDeleteCoverLetter}
+          />
+        )}
       </div>
     </div>
   );
